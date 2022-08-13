@@ -1,0 +1,39 @@
+version: '3'
+
+services:
+  server:
+    restart: always
+    container_name: ${instance}
+    image: hermsi/ark-server:latest
+    volumes:
+      - .:/app
+      - ./backup:/home/steam/ARK-Backups
+      - /rsync/cluster:/cluster
+
+    environment:
+      - SESSION_NAME=${instancename}
+      - SERVER_MAP=${map}
+      - SERVER_PASSWORD=
+      - ADMIN_PASSWORD=lenotre
+      - MAX_PLAYERS=4
+      - UPDATE_ON_START=True
+      - BACKUP_ON_STOP=True
+      - PRE_UPDATE_BACKUP=True
+      - WARN_ON_STOP=True
+      - DISABLE_BATTLEYE=True
+      - ENABLE_CROSSPLAY=True
+      - GAME_CLIENT_PORT=${CONPORT}
+      - UDP_SOCKET_PORT=${UDPPORT}
+      - RCON_PORT=${RCONPORT}
+      - SERVER_LIST_PORT=${SERVPORT}
+    ports:
+      # Port for connections from ARK game client
+      - "${CONPORT}:${CONPORT}/udp"
+      # Raw UDP socket port (always Game client port +1)
+      - "${UDPPORT}:${UDPPORT}/udp"
+      # RCON management port
+      - "${RCONPORT}:${RCONPORT}/tcp"
+      # Steam's server-list port
+      - "${SERVPORT}:${SERVPORT}/udp"
+    networks:
+      - default
